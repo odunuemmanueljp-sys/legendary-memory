@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Booking</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f3f4f6;
+        }
+
+        .navbar {
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-links {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .navbar-links a {
+            margin-left: 1rem;
+            text-decoration: none;
+            color: #374151;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-links a:hover {
+            color: #6b7280;
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+        }
+
+        .bar {
+            width: 25px;
+            height: 3px;
+            background-color: #333;
+            margin: 5px 0;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .section {
+            padding: 2rem;
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .hotel-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .hotel-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .hotel-card-content {
+            padding: 1rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-links {
+                display: none;
+                flex-direction: column;
+                align-items: flex-start;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background-color: white;
+                width: 100%;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                padding: 1rem;
+            }
+
+            .navbar-links.active {
+                display: flex;
+            }
+
+            .navbar-links a {
+                margin: 0.5rem 0;
+            }
+
+            .hamburger {
+                display: block;
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-xl font-bold">Hotel Booking</div>
+            <div class="hamburger">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+            <div class="navbar-links">
+                <a href="#" data-section="home">Home</a>
+                <a href="#" data-section="search">Search</a>
+                <a href="#" data-section="admin">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <section id="home" class="section active">
+        <div class="container mx-auto text-center">
+            <h1 class="text-4xl font-bold mb-4">Welcome to Our Hotel Booking Platform</h1>
+            <p class="text-gray-700 mb-8">Find the perfect hotel for your next vacation.</p>
+            <img src="https://images.unsplash.com/photo-1566073771259-6a690aa3dc54?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Hotel Lobby" class="rounded-lg shadow-md mx-auto" style="max-width: 800px;">
+        </div>
+    </section>
+
+    <section id="search" class="section">
+        <div class="container mx-auto">
+            <h2 class="text-2xl font-bold mb-4">Search for Hotels</h2>
+            <div class="mb-4">
+                <label for="city" class="block text-gray-700 text-sm font-bold mb-2">City:</label>
+                <input type="text" id="city" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter city">
+            </div>
+            <div class="mb-4">
+                <label for="dates" class="block text-gray-700 text-sm font-bold mb-2">Dates:</label>
+                <input type="date" id="dates" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+                Search
+            </button>
+
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="hotel-card">
+                    <img src="https://images.unsplash.com/photo-1598928506831-52b599131c6c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Hotel 1">
+                    <div class="hotel-card-content">
+                        <h3 class="text-xl font-bold mb-2">Luxury Hotel</h3>
+                        <p class="text-gray-700">Beautiful hotel with great amenities.</p>
+                        <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4 open-modal" data-hotel-id="1">View Rooms</button>
+                    </div>
+                </div>
+
+                <div class="hotel-card">
+                    <img src="https://images.unsplash.com/photo-1568495286023-894028ca316e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Hotel 2">
+                    <div class="hotel-card-content">
+                        <h3 class="text-xl font-bold mb-2">Cozy Inn</h3>
+                        <p class="text-gray-700">A comfortable and affordable stay.</p>
+                        <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4 open-modal" data-hotel-id="2">View Rooms</button>
+                    </div>
+                </div>
+
+                <div class="hotel-card">
+                    <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80" alt="Hotel 3">
+                    <div class="hotel-card-content">
+                        <h3 class="text-xl font-bold mb-2">Modern Suites</h3>
+                        <p class="text-gray-700">Stylish suites with city views.</p>
+                        <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4 open-modal" data-hotel-id="3">View Rooms</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="admin" class="section">
+        <div class="container mx-auto">
+            <h2 class="text-2xl font-bold mb-4">Admin Panel</h2>
+
+            <h3 class="text-xl font-bold mb-2">Add Hotel</h3>
+            <form class="mb-4">
+                <div class="mb-2">
+                    <label for="hotelName" class="block text-gray-700 text-sm font-bold mb-2">Hotel Name:</label>
+                    <input type="text" id="hotelName" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter hotel name">
+                </div>
+                <div class="mb-2">
+                    <label for="hotelDescription" class="block text-gray-700 text-sm font-bold mb-2">Description:</label>
+                    <textarea id="hotelDescription" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter description"></textarea>
+                </div>
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">Add Hotel</button>
+            </form>
+
+            <h3 class="text-xl font-bold mb-2">View Bookings</h3>
+            <table class="table-auto w-full">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2">Booking ID</th>
+                        <th class="px-4 py-2">Hotel</th>
+                        <th class="px-4 py-2">Dates</th>
+                        <th class="px-4 py-2">Customer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="border px-4 py-2">1</td>
+                        <td class="border px-4 py-2">Luxury Hotel</td>
+                        <td class="border px-4 py-2">2024-01-15 - 2024-01-20</td>
+                        <td class="border px-4 py-2">John Doe</td>
+                    </tr>
+                    <tr>
+                        <td class="border px-4 py-2">2</td>
+                        <td class="border px-4 py-2">Cozy Inn</td>
+                        <td class="border px-4 py-2">2024-02-01 - 2024-02-05</td>
+                        <td class="border px-4 py-2">Jane Smith</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 class="text-2xl font-bold mb-4">Book Your Room</h2>
+            <p class="text-gray-700 mb-4">Available rooms for Luxury Hotel:</p>
+
+            <div class="mb-4">
+                <label for="roomType" class="block text-gray-700 text-sm font-bold mb-2">Room Type:</label>
+                <select id="roomType" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="single">Single Room</option>
+                    <option value="double">Double Room</option>
+                    <option value="suite">Suite</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="numGuests" class="block text-gray-700 text-sm font-bold mb-2">Number of Guests:</label>
+                <input type="number" id="numGuests" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="1">
+            </div>
+
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button" onclick="mockPayment()">Book Now</button>
+        </div>
+    </div>
+
+    <script>
+        const hamburger = document.querySelector(".hamburger");
+        const navbarLinks = document.querySelector(".navbar-links");
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.navbar-links a');
+        const openModalButtons = document.querySelectorAll('.open-modal');
+        const bookingModal = document.getElementById('bookingModal');
+        const closeButton = document.querySelector('.close-button');
+
+        hamburger.addEventListener('click', () => {
+            navbarLinks.classList.toggle('active');
+        });
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sectionId = link.dataset.section;
+
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                document.getElementById(sectionId).classList.add('active');
+                navbarLinks.classList.remove('active');
+            });
+        });
+
+        openModalButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                bookingModal.style.display = 'block';
+            });
+        });
+
+        closeButton.addEventListener('click', () => {
+            bookingModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target == bookingModal) {
+                bookingModal.style.display = 'none';
+            }
+        });
+
+        function mockPayment() {
+            alert('Booking successful! Mock payment processed.');
+            bookingModal.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
