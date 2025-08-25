@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Booking</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body { background: #f3f4f6; margin: 0; font-family: sans-serif; }
+    .navbar { background: white; padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .navbar-links { display: flex; justify-content: flex-end; align-items: center; }
+    .navbar-links a { margin-left: 1rem; text-decoration: none; color: #374151; font-weight: 500; }
+    .navbar-links a:hover { color: #6b7280; }
+    .hamburger { display: none; cursor: pointer; }
+    .bar { width: 25px; height: 3px; background-color: #333; margin: 5px 0; }
+    .section { padding: 2rem; display: none; }
+    .section.active { display: block; animation: fadeIn 0.5s ease-in-out; }
+    @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+    .hotel-card { background: white; border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; margin-bottom: 1rem; }
+    .hotel-card img { width: 100%; height: 200px; object-fit: cover; }
+    .hotel-card-content { padding: 1rem; }
+    .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:1000; }
+    .modal-content { background: white; padding:2rem; border-radius:0.5rem; width:80%; max-width:600px; margin:auto; position:relative; top:50%; transform:translateY(-50%); }
+    .close-button { position:absolute; top:10px; right:10px; cursor:pointer; }
+    @media (max-width: 768px) {
+      .navbar-links { display:none; flex-direction:column; position:absolute; top:100%; left:0; background:white; width:100%; padding:1rem; }
+      .navbar-links.active { display:flex; }
+      .hamburger { display:block; position:absolute; top:1rem; right:1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container mx-auto flex justify-between items-center">
+      <div class="text-xl font-bold">Hotel Booking</div>
+      <div class="hamburger">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      </div>
+      <div class="navbar-links">
+        <a href="#" data-section="home">Home</a>
+        <a href="#" data-section="search">Search</a>
+        <a href="#" data-section="admin">Admin</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Home -->
+  <section id="home" class="section active">
+    <div class="container mx-auto text-center">
+      <h1 class="text-4xl font-bold mb-4">Welcome to Our Hotel Booking Platform</h1>
+      <p class="text-gray-700 mb-8">Find the perfect hotel for your next vacation.</p>
+      <img src="https://images.unsplash.com/photo-1566073771259-6a690aa3dc54?auto=format&fit=crop&w=800&q=80" 
+           alt="Hotel Lobby" class="rounded-lg shadow-md mx-auto" style="max-width: 800px;">
+    </div>
+  </section>
+
+  <!-- Search -->
+  <section id="search" class="section">
+    <div class="container mx-auto">
+      <h2 class="text-2xl font-bold mb-4">Search for Hotels</h2>
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">City:</label>
+        <input type="text" id="city" class="shadow border rounded w-full py-2 px-3" placeholder="Enter city">
+      </div>
+      <button id="searchBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Search</button>
+      <div id="hotelList" class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+  </section>
+
+  <!-- Admin -->
+  <section id="admin" class="section">
+    <div class="container mx-auto">
+      <h2 class="text-2xl font-bold mb-4">Admin Panel</h2>
+      <h3 class="text-xl font-bold mb-2">Add Hotel</h3>
+      <form id="addHotelForm" class="mb-4">
+        <input type="text" id="hotelName" placeholder="Hotel Name" class="shadow border rounded w-full py-2 px-3 mb-2">
+        <input type="text" id="hotelCity" placeholder="City" class="shadow border rounded w-full py-2 px-3 mb-2">
+        <textarea id="hotelDescription" placeholder="Description" class="shadow border rounded w-full py-2 px-3 mb-2"></textarea>
+        <input type="text" id="hotelImage" placeholder="Image URL" class="shadow border rounded w-full py-2 px-3 mb-2">
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Add Hotel</button>
+      </form>
+
+      <h3 class="text-xl font-bold mb-2">View Bookings</h3>
+      <table class="table-auto w-full" id="bookingTable">
+        <thead>
+          <tr><th class="px-4 py-2">Booking ID</th><th class="px-4 py-2">Hotel</th><th class="px-4 py-2">Dates</th><th class="px-4 py-2">Customer</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Booking Modal -->
+  <div id="bookingModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h2 class="text-2xl font-bold mb-4">Book Your Room</h2>
+      <p id="hotelTitle" class="text-gray-700 mb-4"></p>
+      <div class="mb-4">
+        <label class="block">Room Type:</label>
+        <select id="roomType" class="shadow border rounded w-full py-2 px-3">
+          <option value="single">Single Room</option>
+          <option value="double">Double Room</option>
+          <option value="suite">Suite</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label class="block">Number of Guests:</label>
+        <input type="number" id="numGuests" value="1" class="shadow border rounded w-full py-2 px-3">
+      </div>
+      <div class="mb-4">
+        <label class="block">Dates:</label>
+        <input type="text" id="bookingDates" placeholder="e.g. 2025-09-01 to 2025-09-05" class="shadow border rounded w-full py-2 px-3">
+      </div>
+      <input type="text" id="customerName" placeholder="Your Name" class="shadow border rounded w-full py-2 px-3 mb-4">
+      <button id="bookNowBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Book Now</button>
+    </div>
+  </div>
+
+  <script>
+    // -------------------------
+    // DATA
+    // -------------------------
+    let hotels = [
+      {id:1, name:"Luxury Hotel", city:"Paris", desc:"Beautiful hotel with great amenities.", img:"https://images.unsplash.com/photo-1598928506831-52b599131c6c?auto=format&fit=crop&w=800&q=80"},
+      {id:2, name:"Cozy Inn", city:"London", desc:"A comfortable and affordable stay.", img:"https://images.unsplash.com/photo-1568495286023-894028ca316e?auto=format&fit=crop&w=800&q=80"},
+      {id:3, name:"Modern Suites", city:"New York", desc:"Stylish suites with city views.", img:"https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80"},
+    ];
+    let bookings = JSON.parse(localStorage.getItem("bookings")) || [];
+
+    // -------------------------
+    // ELEMENTS
+    // -------------------------
+    const navbarLinks=document.querySelector(".navbar-links");
+    const hamburger=document.querySelector(".hamburger");
+    const sections=document.querySelectorAll(".section");
+    const navLinks=document.querySelectorAll(".navbar-links a");
+    const hotelList=document.getElementById("hotelList");
+    const addHotelForm=document.getElementById("addHotelForm");
+    const bookingTable=document.querySelector("#bookingTable tbody");
+    const bookingModal=document.getElementById("bookingModal");
+    const closeButton=document.querySelector(".close-button");
+    const hotelTitle=document.getElementById("hotelTitle");
+    const bookNowBtn=document.getElementById("bookNowBtn");
+
+    let selectedHotel=null;
+
+    // -------------------------
+    // NAVIGATION
+    // -------------------------
+    hamburger.addEventListener("click",()=>navbarLinks.classList.toggle("active"));
+    navLinks.forEach(link=>{
+      link.addEventListener("click",(e)=>{
+        e.preventDefault();
+        sections.forEach(s=>s.classList.remove("active"));
+        document.getElementById(link.dataset.section).classList.add("active");
+        navbarLinks.classList.remove("active");
+        if(link.dataset.section==="search"){ renderHotels(hotels); }
+        if(link.dataset.section==="admin"){ renderBookings(); }
+      });
+    });
+
+    // -------------------------
+    // HOTELS
+    // -------------------------
+    function renderHotels(list){
+      hotelList.innerHTML="";
+      list.forEach(h=>{
+        const card=document.createElement("div");
+        card.className="hotel-card";
+        card.innerHTML=`
+          <img src="${h.img}" alt="${h.name}">
+          <div class="hotel-card-content">
+            <h3 class="text-xl font-bold mb-2">${h.name}</h3>
+            <p class="text-gray-700">${h.desc}</p>
+            <p class="text-sm text-gray-500">City: ${h.city}</p>
+            <button class="bg-green-500 text-white px-4 py-2 rounded mt-4">View Rooms</button>
+          </div>`;
+        card.querySelector("button").addEventListener("click",()=>openBooking(h));
+        hotelList.appendChild(card);
+      });
+    }
+
+    document.getElementById("searchBtn").addEventListener("click",()=>{
+      const city=document.getElementById("city").value.toLowerCase();
+      const filtered=hotels.filter(h=>h.city.toLowerCase().includes(city));
+      renderHotels(filtered);
+    });
+
+    addHotelForm.addEventListener("submit",(e)=>{
+      e.preventDefault();
+      const newHotel={
+        id:Date.now(),
+        name:document.getElementById("hotelName").value,
+        city:document.getElementById("hotelCity").value,
+        desc:document.getElementById("hotelDescription").value,
+        img:document.getElementById("hotelImage").value || "https://via.placeholder.com/400x200"
+      };
+      hotels.push(newHotel);
+      alert("Hotel added!");
+      addHotelForm.reset();
+    });
+
+    // -------------------------
+    // BOOKINGS
+    // -------------------------
+    function openBooking(hotel){
+      selectedHotel=hotel;
+      hotelTitle.textContent="Booking for "+hotel.name;
+      bookingModal.style.display="block";
+    }
+    closeButton.addEventListener("click",()=>bookingModal.style.display="none");
+    window.addEventListener("click",(e)=>{if(e.target==bookingModal) bookingModal.style.display="none";});
+
+    bookNowBtn.addEventListener("click",()=>{
+      const booking={
+        id:Date.now(),
+        hotel:selectedHotel.name,
+        dates:document.getElementById("bookingDates").value,
+        customer:document.getElementById("customerName").value
+      };
+      bookings.push(booking);
+      localStorage.setItem("bookings",JSON.stringify(bookings));
+      alert("Booking successful!");
+      bookingModal.style.display="none";
+    });
+
+    function renderBookings(){
+      bookingTable.innerHTML="";
+      bookings.forEach(b=>{
+        const row=document.createElement("tr");
+        row.innerHTML=`
+          <td class="border px-4 py-2">${b.id}</td>
+          <td class="border px-4 py-2">${b.hotel}</td>
+          <td class="border px-4 py-2">${b.dates}</td>
+          <td class="border px-4 py-2">${b.customer}</td>`;
+        bookingTable.appendChild(row);
+      });
+    }
+  </script>
+</body>
+</html>
